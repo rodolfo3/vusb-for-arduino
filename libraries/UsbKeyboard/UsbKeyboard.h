@@ -149,9 +149,25 @@ class UsbKeyboardDevice {
   void update() {
     usbPoll();
   }
+
+  void waitReady() {
+    while (!usbInterruptIsReady()) {
+      // Note: We wait until we can send keystroke
+      //       so we know the previous keystroke was
+      //       sent.
+    }
+  }  
     
   void sendKeyStroke(byte keyStroke) {
     sendKeyStroke(keyStroke, 0);
+  }
+
+  void sendKeyUp(byte keyStroke) {
+    sendKeyUp(keyStroke, 0);
+  }
+
+  void sendKeyDown(byte keyStroke) {
+    sendKeyDown(keyStroke, 0);
   }
 
   void sendKeyStroke(byte keyStroke, byte modifiers) {
@@ -179,6 +195,22 @@ class UsbKeyboardDevice {
     memset(reportBuffer, 0, sizeof(reportBuffer));      
     usbSetInterrupt(reportBuffer, sizeof(reportBuffer));
 
+  }
+
+  void sendKeyUp(byte keyStroke, byte modifiers) {
+      
+    memset(reportBuffer, 0, sizeof(reportBuffer));
+    usbSetInterrupt(reportBuffer, sizeof(reportBuffer));
+  }
+
+  void sendKeyDown(byte keyStroke, byte modifiers) {
+      
+    memset(reportBuffer, 0, sizeof(reportBuffer));
+
+    reportBuffer[0] = modifiers;
+    reportBuffer[1] = keyStroke;
+        
+    usbSetInterrupt(reportBuffer, sizeof(reportBuffer));
   }
     
   //private: TODO: Make friend?
